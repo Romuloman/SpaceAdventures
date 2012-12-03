@@ -21,7 +21,7 @@ class EscenaAyuda(pilas.escenas.Escena):
         texto2 = pilas.actores.Texto('Jugador 2 (Azul)', y=150, x=170)
         texto2.color = pilas.colores.azul
         texto3 = pilas.actores.Texto('Para disparar, el jugador 1 debera usar la tecla G\n y el jugador 2 la tecla L.\n El objetivo del juego es destruir a su oponente y\n romper o esquivar los asteroides.', y=-40, x=0)
-        texto3.color = pilas.colores.negro
+        texto3.color = pilas.colores.negro_transparente
         pilas.avisar('Para volver al menu precione ESC')
 
     def cuando_pulsa_tecla(self, *k, **kv):
