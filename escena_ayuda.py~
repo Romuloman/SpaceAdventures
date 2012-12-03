@@ -1,0 +1,29 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import pilas
+
+
+class EscenaAyuda(pilas.escenas.Escena):
+    '''Representa a la escena que se desarrolla en la ayuda del juego'''
+
+    def __init__(self):
+        pilas.escenas.Escena.__init__(self)
+        self.fondo = pilas.fondos.Fondo("data/fondo_ayuda.png")
+        self.crear_texto_ayuda()
+        pilas.eventos.pulsa_tecla_escape.conectar(self.cuando_pulsa_tecla)
+        
+    def crear_texto_ayuda(self):
+        titulo = pilas.actores.Texto("Controles", magnitud=30, y=200)
+        titulo.color = pilas.colores.grisoscuro
+        texto1 = pilas.actores.Texto('Jugador 1 (Verde)', y=150, x=-170)
+        texto1.color = pilas.colores.verde
+        texto2 = pilas.actores.Texto('Jugador 2 (Azul)', y=150, x=170)
+        texto2.color = pilas.colores.azul
+        texto3 = pilas.actores.Texto('Para disparar, el jugador 1 debera usar la tecla G\n y el jugador 2 la tecla L.\n El objetivo del juego es destruir a su oponente y\n romper o esquivar los asteroides.', y=-40, x=0)
+        texto3.color = pilas.colores.negro
+        pilas.avisar('Para volver al menu precione ESC')
+
+    def cuando_pulsa_tecla(self, *k, **kv):
+        import escena_menu
+        escena_menu.EscenaMenu()

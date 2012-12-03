@@ -1,0 +1,234 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
+import pilas
+import nave2
+from pilas.escenas import Escena
+import piedra_espacial
+import escena_menu
+import random
+
+
+class Juego(Escena):
+    '''Escena donde se desarrolla el juego'''
+
+    def __init__(self):
+        Escena.__init__(self)
+        self.piedras = []
+        self.vidas1 = []
+        self.vidas2 = []
+        self.fondo = pilas.fondos.Fondo('data/fondo_juego.jpg')
+        self.crear_piedra(8)
+        self.t=pilas.actores.Temporizador(x=0,y=180,color=pilas.colores.blanco)
+        self.t.ajustar(20, self.recrear_piedra)
+        self.t.iniciar()
+
+
+        self.crear_vidas()
+        self.puntaje1 = pilas.actores.Puntaje(x=290, y=220)
+        self.puntaje1.color = pilas.colores.azul
+        self.puntaje2 = pilas.actores.Puntaje(x=-290, y=220)
+        self.puntaje2.color = pilas.colores.verde
+        self.crear_nave()
+
+        
+
+    def crear_nave(self):
+        self.nave1 = pilas.actores.Nave()
+        self.nave2 = nave2.Nave2()
+        self.nave1.x = 100
+        self.nave2.x = -100
+        self.naves = [self.nave1, self.nave2]
+        self.nave1.aprender(pilas.habilidades.PuedeExplotar)
+        self.nave2.aprender(pilas.habilidades.PuedeExplotar)
+        self.nave1.aprender(pilas.habilidades.SeMantieneEnPantalla)
+        self.nave2.aprender(pilas.habilidades.SeMantieneEnPantalla)
+        self.nave1.definir_enemigos(self.piedras, self.cuando_explota_asterioide1)
+        self.nave2.definir_enemigos(self.piedras, self.cuando_explota_asterioide2)
+        pilas.mundo.colisiones.agregar(self.nave1, self.piedras, self.explotar_y_terminar1)
+        pilas.mundo.colisiones.agregar(self.nave2, self.piedras, self.explotar_y_terminar2)
+
+    def crear_piedra(self, cantidad):        
+        fuera_de_la_pantalla = [-600, -650, -700, -750, -800]
+        tamanos = ['grande', 'media', 'chica']
+
+        for x in range(cantidad):
+            x = random.choice(fuera_de_la_pantalla)
+            y = random.choice(fuera_de_la_pantalla)
+            t = random.choice(tamanos)
+
+            piedra_nueva = piedra_espacial.PiedraEspacial(self.piedras, x=x, y=y, tamano=t)
+            self.piedras.append(piedra_nueva)
+
+    def recrear_piedra(self, cantidad=12):        
+        fuera_de_la_pantalla = [-600, -650, -700, -750, -800]
+        tamanos = ['grande', 'media', 'chica']
+        
+        for x in range(cantidad):
+            x = random.choice(fuera_de_la_pantalla)
+            y = random.choice(fuera_de_la_pantalla)
+            t = random.choice(tamanos)
+
+            piedra_nueva = piedra_espacial.PiedraEspacial(self.piedras, x=x, y=y, tamano=t)
+            self.piedras.append(piedra_nueva)
+        self.t.eliminar()
+        self.ta=pilas.actores.Temporizador(x=0,y=180,color=pilas.colores.blanco)
+        self.ta.ajustar(25, self.recrear_piedra1)
+        self.ta.iniciar()
+    
+    def recrear_piedra1(self, cantidad=16):        
+        fuera_de_la_pantalla = [-600, -650, -700, -750, -800]
+        tamanos = ['grande', 'media', 'chica']
+        
+        for x in range(cantidad):
+            x = random.choice(fuera_de_la_pantalla)
+            y = random.choice(fuera_de_la_pantalla)
+            t = random.choice(tamanos)
+
+            piedra_nueva = piedra_espacial.PiedraEspacial(self.piedras, x=x, y=y, tamano=t)
+            self.piedras.append(piedra_nueva)
+        self.ta.eliminar()
+    
+    def crear_vidas(self):
+        x = [300, 270, 240]
+        y = 170
+        for i in range(3):
+            vida1 = pilas.actores.Actor('data/vida.png')
+            vida1.escala = 0.15
+            vida1.espejado = True
+            vida1.x, vida1.y = x[i], y
+            vida2 = pilas.actores.Actor('data/vida.png')
+            vida2.escala = 0.15
+            vida2.x, vida2.y = -x[i], y
+            self.vidas1.append(vida1)
+            self.vidas2.append(vida2)
+
+    def explotar_y_terminar1(self, nave, piedra):
+        self.nave1.eliminar()
+        self.vidas1[-1].eliminar()
+        del self.vidas1[-1]
+        if self.vidas1 == []:
+            from JuegoRomulo import PierdeTodoElJuego
+            PierdeTodoElJuego()
+            self.vidas2 = []
+          
+        self.t1=pilas.actores.Temporizador(x=290,y=140,color=pilas.colores.azul)
+        self.t1.ajustar(5, self.recrear_nave1)
+        self.t1.iniciar()
+
+            
+    def explotar_y_terminar2(self, nave, piedra):
+        self.nave2.eliminar()
+        self.vidas2[-1].eliminar()
+        del self.vidas2[-1]
+        if self.vidas2 == []:
+            from JuegoRomulo import PierdeTodoElJuego
+            PierdeTodoElJuego()
+            self.vidas1 = []
+
+        self.t2=pilas.actores.Temporizador(x=-290,y=140,color=pilas.colores.verde)
+        self.t2.ajustar(5, self.recrear_nave2)
+        self.t2.iniciar()
+        
+        
+    def recrear_nave1(self):
+        self.nave1 = pilas.actores.Nave()
+        self.nave1.x = 100
+        self.nave1.aprender(pilas.habilidades.PuedeExplotar)
+        self.nave1.aprender(pilas.habilidades.SeMantieneEnPantalla)
+        self.nave1.definir_enemigos(self.piedras, self.cuando_explota_asterioide1)
+        pilas.mundo.colisiones.agregar(self.nave1, self.piedras, self.explotar_y_terminar1)
+        self.t1.eliminar()
+        
+    def recrear_nave2(self):
+        self.nave2 = nave2.Nave2()
+        self.nave2.x = -100
+        self.nave2.aprender(pilas.habilidades.PuedeExplotar)
+        self.nave2.aprender(pilas.habilidades.SeMantieneEnPantalla)
+        self.nave2.definir_enemigos(self.piedras, self.cuando_explota_asterioide2)
+        pilas.mundo.colisiones.agregar(self.nave2, self.piedras, self.explotar_y_terminar2)
+        self.t2.eliminar()
+            
+    def elganador(self):
+        self.cont1 = int(self.puntaje1.obtener_texto())
+        self.cont2 = int(self.puntaje2.obtener_texto())
+        if self.cont1<self.cont2:
+            self.ganador='Jugador 1 GANA!!'
+        elif self.cont1>self.cont2:
+            self.ganador='Jugador 2 GANA!!'
+        return self.ganador
+
+    def cuando_explota_asterioide1(self):
+        self.puntaje1.aumentar()
+
+    def cuando_explota_asterioide2(self):
+        self.puntaje2.aumentar()
+
+    def vidas1(self): return self.vidas1
+
+    def vidas2(self): return self.vidas2
+    
+class PierdeTodoElJuego(Escena):
+    
+    def __init__(self):
+        #Crea escena q te pregunta q hacer
+        self.fondo2=pilas.fondos.Fondo('data/fondo_menu.jpeg')      
+        pilas.avisar('Ooh..Has perdido!!')
+        self.generar_menu()
+        self.generar_titulo()
+
+    def generar_titulo(self):
+        from JuegoRomulo import Juego
+        texto = pilas.actores.Texto(self.ganador, magnitud=45, y=200)
+    
+    def generar_menu(self):
+        opciones = [
+ 	            ('Volver a jugar', self.recomenzar),
+                ('Menu', self.menu),
+ 	            ('Salir', self.salir),
+	    	           ]
+        self.menu = pilas.actores.Menu(opciones)
+    
+    def recomenzar(self):
+        from JuegoRomulo import Juego
+        Juego()
+    
+    def menu(self):
+        import escena_menu
+        escena_menu.EscenaMenu()
+    def salir(self):
+        pilas.terminar()
+
+class Estado:
+    "Representa una escena dentro del juego."
+
+    def actualizar(self):
+        raise Exception("Tienes que sobrescribir este metodo...")
+
+
+
+class Iniciando(Estado):
+    "Estado que indica que el juego ha comenzado."
+
+    def __init__(self, juego, nivel):
+        self.texto = pilas.actores.Texto("Iniciando el nivel %d" %(nivel))
+        self.nivel = nivel
+        self.texto.color = pilas.colores.blanco
+        self.contador_de_segundos = 0
+        self.juego = juego
+
+        # Cada un segundo le avisa al estado que cuente.
+        pilas.mundo.agregar_tarea(1, self.actualizar)
+
+    def actualizar(self):
+        self.contador_de_segundos += 1
+
+        if self.contador_de_segundos > 2:
+            self.juego.cambiar_estado(Jugando(self.juego, self.nivel))
+            self.texto.eliminar()
+            return False
+
+        return True    # para indicarle al contador que siga trabajado.
+
+    
